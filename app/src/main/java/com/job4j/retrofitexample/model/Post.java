@@ -32,4 +32,5 @@ public class Post {
     public String getText() {
         return text;
     }
+
 }
