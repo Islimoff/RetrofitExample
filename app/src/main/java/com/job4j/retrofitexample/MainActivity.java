@@ -12,9 +12,11 @@ import com.job4j.retrofitexample.retrofit.JsonPlaceHolderApi;
 import com.job4j.retrofitexample.model.Post;
 import com.job4j.retrofitexample.retrofit.RetrofitClient;
 
-import org.reactivestreams.Subscriber;
-
+import io.reactivex.Observer;
+import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -34,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         inputTitle = findViewById(R.id.text_title);
         inputText = findViewById(R.id.text_text);
         result = findViewById(R.id.result_text);
-        Retrofit retrofit = RetrofitClient.getInstance();
+        Retrofit retrofit = RetrofitClient.getInstance(this);
         jsonPlaceHolderApi =
                 retrofit.create(JsonPlaceHolderApi.class);
     }
@@ -45,17 +47,17 @@ public class MainActivity extends AppCompatActivity {
                 .createPost(getInputPost())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::showResult);
+                .subscribe(showResult());
     }
 
     public void update(View view) {
-        if (isInputId()) return;
+        if (isInputId() || isInputUserId()) return;
         jsonPlaceHolderApi
-                .putPost(Integer.parseInt(inputUserId.getText().toString())
+                .putPost(Integer.parseInt(inputId.getText().toString())
                         , getInputPost())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::showResult);
+                .subscribe(showResult());
     }
 
     public void delete(View view) {
@@ -69,15 +71,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void showDeletecode(Response<Void> response) {
         result.setText(String.valueOf(response.code()));
-    }
-
-    private void showResult(Post postResponce) {
-        String content = String.format(
-                "ID:%s\nuser ID:%s\nTitle :%s\nText:%s\n\n",
-                postResponce.getId(), postResponce.getUserId(),
-                postResponce.getTitle(), postResponce.getText()
-        );
-        result.setText(content);
     }
 
     private boolean isInputUserId() {
@@ -104,5 +97,26 @@ public class MainActivity extends AppCompatActivity {
                 , inputTitle.getText().toString()
                 , inputText.getText().toString());
         return post;
+    }
+
+    private DisposableSingleObserver showResult() {
+        DisposableSingleObserver<Post> observer = new DisposableSingleObserver<Post>() {
+            @Override
+            public void onSuccess(Post postResponce) {
+                String content = String.format(
+                        "ID:%s\nuser ID:%s\nTitle :%s\nText:%s\n\n",
+                        postResponce.getId(), postResponce.getUserId(),
+                        postResponce.getTitle(), postResponce.getText()
+                );
+                result.setText(content);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Toast.makeText(getApplicationContext(), e.getMessage()
+                        , Toast.LENGTH_SHORT).show();
+            }
+        };
+        return observer;
     }
 }

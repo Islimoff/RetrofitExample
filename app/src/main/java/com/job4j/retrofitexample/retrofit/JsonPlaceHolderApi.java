@@ -7,6 +7,7 @@ import com.job4j.retrofitexample.model.Post;
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import retrofit2.Response;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -29,14 +30,14 @@ public interface JsonPlaceHolderApi {
     Observable<List<Comment>> getComments(@Path("id") int postId);
 
     @POST("posts")
-    Observable<Post> createPost(@Body Post post);
+    Single<Post> createPost(@Body Post post);
 
     @PUT("posts/{id}")
-    Observable<Post> putPost(@Path("id") int id, @Body Post post);
+    Single<Post> putPost(@Path("id") int id, @Body Post post);
 
     @PATCH("posts/{id}")
-    Observable<Post> pathPost(@Path("id") int id, @Field("title") String title);
+    Single<Post> pathPost(@Path("id") int id, @Field("title") String title);
 
     @DELETE("posts/{id}")
-    Observable<Response<Void>> deletePost(@Path("id") int id);
+    Single<Response<Void>> deletePost(@Path("id") int id);
 }

@@ -4,11 +4,11 @@ import com.google.gson.annotations.SerializedName;
 
 public class Post {
 
-    private int userId;
+    private Integer userId;
     private Integer id;
     private String title;
 
-    public Post(int userId, String title, String text) {
+    public Post(Integer userId, String title, String text) {
         this.userId = userId;
         this.title = title;
         this.text = text;
@@ -17,7 +17,7 @@ public class Post {
     @SerializedName("body")
     private String text;
 
-    public int getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
@@ -32,5 +32,4 @@ public class Post {
     public String getText() {
         return text;
     }
-
 }
